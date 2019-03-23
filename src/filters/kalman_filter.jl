@@ -37,7 +37,7 @@ function KalmanFilter(T::Matrix{S}, R::Matrix{S}, C::Vector{S}, Q::Matrix{S},
     return KalmanFilter(T, R, C, Q, Z, D, E, s_0, P_0, NaN, false, PZV)
 end
 
-"""
+raw"""
 ```
 init_stationary_states(T, R, C, Q)
 ```
@@ -46,7 +46,8 @@ Compute the initial state `s_0` and state covariance matrix `P_0` under the
 stationarity condition:
 
 ```
-s_0  = (I - T)\C
+s_0  = (I - T) \ C
+""
 P_0 = reshape(I - kron(T, T))\vec(R*Q*R'), Ns, Ns)
 ```
 
@@ -75,7 +76,7 @@ function init_stationary_states(T::Matrix{S}, R::Matrix{S}, C::Vector{S},
     return s_0, P_0
 end
 
-"""
+raw"""
 ```
 kalman_filter(y, T, R, C, Q, Z, D, E, s_0 = Vector(), P_0 = Matrix();
     outputs = [:loglh, :pred, :filt], Nt0 = 0)
@@ -161,7 +162,7 @@ where:
 When `s_0` and `P_0` are omitted, they are computed using
 `init_stationary_states`.
 """
-function kalman_filter(regime_indices::Vector{Range{Int}}, y::Matrix{S},
+function kalman_filter(regime_indices::Vector{UnitRange{Int}}, y::Matrix{S},
     Ts::Vector{Matrix{S}}, Rs::Vector{Matrix{S}}, Cs::Vector{Vector{S}},
     Qs::Vector{Matrix{S}}, Zs::Vector{Matrix{S}}, Ds::Vector{Vector{S}}, Es::Vector{Matrix{S}},
     s_0::Vector{S} = Vector{S}(0), P_0::Matrix{S} = Matrix{S}(0, 0);
