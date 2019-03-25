@@ -6,6 +6,7 @@ module StateSpaceRoutines
     using Distributions: Distribution, MvNormal, pdf, Weights, sample, logpdf
     using Roots: fzero
     using HDF5, JLD
+    using Distributed
 
     export
 
