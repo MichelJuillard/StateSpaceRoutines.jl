@@ -27,8 +27,8 @@ Outer constructor for the `KalmanFilter` type.
 """
 function KalmanFilter(T::Matrix{S}, R::Matrix{S}, C::Vector{S}, Q::Matrix{S},
                       Z::Matrix{S}, D::Vector{S}, E::Matrix{S},
-                      s_0::Vector{S} = Vector{S}(0), P_0::Matrix{S} = Matrix{S}(0, 0),
-                      converged::Bool = false, PZV::Matrix{S} = Matrix{S}(0,0)) where {S<:AbstractFloat}
+                      s_0::Vector{S} = Vector{S}(undef, 0), P_0::Matrix{S} = Matrix{S}(undef, 0, 0),
+                      converged::Bool = false, PZV::Matrix{S} = Matrix{S}(undef, 0,0)) where {S<:AbstractFloat}
 
     if isempty(s_0) || isempty(P_0)
         s_0, P_0 = init_stationary_states(T, R, C, Q)
@@ -64,14 +64,14 @@ vector estimate is set to `C` and its covariance matrix is given by `1e6 * I`.
 """
 function init_stationary_states(T::Matrix{S}, R::Matrix{S}, C::Vector{S},
                                 Q::Matrix{S}) where {S<:AbstractFloat}
-    e, _ = eig(T)
+    e, _ = eigen(T)
     if all(abs.(e) .< 1)
         s_0 = (UniformScaling(1) - T)\C
         P_0 = solve_discrete_lyapunov(T, R*Q*R')
     else
         Ns = size(T, 1)
         s_0 = C
-        P_0 = 1e6 * eye(Ns)
+        P_0 = 1e6 * Matrix(I, Ns, Ns)
     end
     return s_0, P_0
 end
@@ -165,7 +165,7 @@ When `s_0` and `P_0` are omitted, they are computed using
 function kalman_filter(regime_indices::Vector{UnitRange{Int}}, y::Matrix{S},
     Ts::Vector{Matrix{S}}, Rs::Vector{Matrix{S}}, Cs::Vector{Vector{S}},
     Qs::Vector{Matrix{S}}, Zs::Vector{Matrix{S}}, Ds::Vector{Vector{S}}, Es::Vector{Matrix{S}},
-    s_0::Vector{S} = Vector{S}(0), P_0::Matrix{S} = Matrix{S}(0, 0);
+    s_0::Vector{S} = Vector{S}(undef, 0), P_0::Matrix{S} = Matrix{S}(undef, 0, 0);
     outputs::Vector{Symbol} = [:loglh, :pred, :filt],
     Nt0::Int = 0, tol::Float64= 0.0) where {S<:AbstractFloat}
 
@@ -185,11 +185,11 @@ function kalman_filter(regime_indices::Vector{UnitRange{Int}}, y::Matrix{S},
     k = KalmanFilter(Ts[1], Rs[1], Cs[1], Qs[1], Zs[1], Ds[1], Es[1], s_0, P_0)
 
     mynan = convert(S, NaN)
-    s_pred = return_pred  ? fill(mynan, Ns, Nt)     : Matrix{S}(0, 0)
-    P_pred = return_pred  ? fill(mynan, Ns, Ns, Nt) : Array{S, 3}(0, 0, 0)
-    s_filt = return_filt  ? fill(mynan, Ns, Nt)     : Matrix{S}(0, 0)
-    P_filt = return_filt  ? fill(mynan, Ns, Ns, Nt) : Array{S, 3}(0, 0, 0)
-    loglh  = return_loglh ? fill(mynan, Nt)         : Vector{S}(0)
+    s_pred = return_pred  ? fill(mynan, Ns, Nt)     : Matrix{S}(undef, 0, 0)
+    P_pred = return_pred  ? fill(mynan, Ns, Ns, Nt) : Array{S, 3}(undef, 0, 0, 0)
+    s_filt = return_filt  ? fill(mynan, Ns, Nt)     : Matrix{S}(undef, 0, 0)
+    P_filt = return_filt  ? fill(mynan, Ns, Ns, Nt) : Array{S, 3}(undef, 0, 0, 0)
+    loglh  = return_loglh ? fill(mynan, Nt)         : Vector{S}(undef, 0)
 
     # Populate s_0 and P_0
     s_0 = k.s_t
@@ -230,7 +230,7 @@ end
 function kalman_filter(y::Matrix{S},
     T::Matrix{S}, R::Matrix{S}, C::Vector{S},
     Q::Matrix{S}, Z::Matrix{S}, D::Vector{S}, E::Matrix{S},
-    s_0::Vector{S} = Vector{S}(0), P_0::Matrix{S} = Matrix{S}(0, 0);
+    s_0::Vector{S} = Vector{S}(undef, 0), P_0::Matrix{S} = Matrix{S}(undef, 0, 0);
     outputs::Vector{Symbol} = [:loglh, :pred, :filt],
     Nt0::Int = 0, tol::Float64 = 0.0) where {S<:AbstractFloat}
 
@@ -247,11 +247,11 @@ function kalman_filter(y::Matrix{S},
     k = KalmanFilter(T, R, C, Q, Z, D, E, s_0, P_0)
 
     mynan  = convert(S, NaN)
-    loglh  = return_loglh ? fill(mynan, Nt)         : Vector{S}(0)
-    s_pred = return_pred  ? fill(mynan, Ns, Nt)     : Matrix{S}(0, 0)
-    P_pred = return_pred  ? fill(mynan, Ns, Ns, Nt) : Array{S, 3}(0, 0, 0)
-    s_filt = return_filt  ? fill(mynan, Ns, Nt)     : Matrix{S}(0, 0)
-    P_filt = return_filt  ? fill(mynan, Ns, Ns, Nt) : Array{S, 3}(0, 0, 0)
+    loglh  = return_loglh ? fill(mynan, Nt)         : Vector{S}(undef, 0)
+    s_pred = return_pred  ? fill(mynan, Ns, Nt)     : Matrix{S}(undef, 0, 0)
+    P_pred = return_pred  ? fill(mynan, Ns, Ns, Nt) : Array{S, 3}(undef, 0, 0, 0)
+    s_filt = return_filt  ? fill(mynan, Ns, Nt)     : Matrix{S}(undef, 0, 0)
+    P_filt = return_filt  ? fill(mynan, Ns, Ns, Nt) : Array{S, 3}(undef, 0, 0, 0)
 
     # Populate initial states
     s_0 = k.s_t

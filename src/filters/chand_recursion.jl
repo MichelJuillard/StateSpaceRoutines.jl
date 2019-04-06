@@ -2,8 +2,8 @@
 ```
 function chand_recursion(y::Matrix{S}, T::Matrix{S}, R::Matrix{S}, C::Vector{S},
                          Q::Matrix{S}, Z::Matrix{S}, D::Vector{S}, H::Matrix{S},
-                         s_pred::Vector{S} = Vector{S}(0),
-                         P_pred::Matrix{S} = Matrix{S}(0,0);
+                         s_pred::Vector{S} = Vector{S}(undef, 0),
+                         P_pred::Matrix{S} = Matrix{S}(undef, 0,0);
                          allout::Bool = false, Nt0::Int = 0,
                          tol::Float64 = 0.0) where {S<:AbstractFloat}
 ```
@@ -22,8 +22,8 @@ Returns log-likelihood evaluation.
 """
 function chand_recursion(y::Matrix{S}, T::Matrix{S}, R::Matrix{S}, C::Vector{S},
                          Q::Matrix{S}, Z::Matrix{S}, D::Vector{S}, H::Matrix{S},
-                         s_pred::Vector{S} = Vector{S}(0),
-                         P_pred::Matrix{S} = Matrix{S}(0,0);
+                         s_pred::Vector{S} = Vector{S}(undef, 0),
+                         P_pred::Matrix{S} = Matrix{S}(undef, 0,0);
                          allout::Bool = false, Nt0::Int = 0,
                          tol::Float64 = 0.0) where {S<:AbstractFloat}
     converged = false
@@ -120,8 +120,8 @@ function chand_recursion(y::Matrix{S}, T::Matrix{S}, R::Matrix{S}, C::Vector{S},
 end
 
 function remove_presample!(Nt0::Int, loglh::Vector{S}) where {S<:AbstractFloat}
-    out = remove_presample!(Nt0, loglh, Array{Float64, 2}(0,0),
-                            Array{Float64, 3}(0,0,0), Array{Float64, 2}(0,0),
-                            Array{Float64, 3}(0,0,0), outputs = [:loglh])
+    out = remove_presample!(Nt0, loglh, Array{Float64, 2}(undef, 0,0),
+                            Array{Float64, 3}(undef, 0,0,0), Array{Float64, 2}(undef, 0,0),
+                            Array{Float64, 3}(undef, 0,0,0), outputs = [:loglh])
     return out[1]
 end

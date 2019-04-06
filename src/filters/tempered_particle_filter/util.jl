@@ -1,5 +1,5 @@
-#macro mypar(parallel, ex)
-#    return :( $parallel ? Base.@sync(@distributed($ex)) : $ex )
+#macro mypar(distributed, ex)
+#    return :( $distributed ? Base.@sync(@distributed($ex)) : $ex )
 #end
 
 function bisection(f::Function, a::Number, b::Number;
